@@ -4,9 +4,13 @@ parameters:
 #    parameter_name: value
 
 services:
-    import.csv:
+    convert.csv:
         class: AppBundle\Services\ConvertCSV
 
     validator.csv:
         class: AppBundle\Services\ValidatorCSV
-        arguments: [ "@doctrine.orm.entity_manager" ]
+        arguments: [ "@doctrine.orm.entity_manager"]
+
+    import.csv:
+        class: AppBundle\Services\ImportCSV
+        arguments: ["@service_container"]

@@ -3,6 +3,7 @@
 namespace AppBundle\Services;
 
 use AppBundle\Entity\Product;
+use AppBundle\Error\ErrorImport;
 use Doctrine\ORM\EntityManager;
 
 class ValidatorCSV
@@ -14,7 +15,7 @@ class ValidatorCSV
 
     public function validate($row)
     {
-        if ($this->validatePrice($row) && $this->validateStok($row) && $this->isProductExist($row)) {
+        if ($this->validatePrice($row) && $this->validateStok($row) && $this->isProductExist($row) && $this->validateCode($row)) {
             $product = new Product();
 
             $product->setCode($row['Product Code']);
@@ -38,7 +39,10 @@ class ValidatorCSV
 
             return $product;
         } else {
-            $invalidLine = $row['Product Code'];
+            $error = new ErrorImport();
+            $error->setProductCode($row['Product Code']);
+            $error->setMessage('Not valid');
+            $invalidLine = $error;
 
             return $invalidLine;
         }
@@ -69,6 +73,15 @@ class ValidatorCSV
             ->findOneBy(array('code' => $row['Product Code']));
 
         if (!(is_object($product))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private function validateCode($row)
+    {
+        if (preg_match("/^P[0-9]{4}$/", $row['Product Code'])) {
             return true;
         } else {
             return false;
